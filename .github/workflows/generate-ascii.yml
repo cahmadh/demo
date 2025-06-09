@@ -4,30 +4,15 @@ on: push
 
 jobs:
     first_job: 
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Repo
-              uses: actions/checkout@v4
+      runs-on: ubuntu-latest
+      steps:
+          - name: Checkout Repo
+            uses: actions/checkout@v4
 
+          - name: List Repo File
+            run: ls -ltra
 
-            - name: Install cowsay Program
-              run: sudo apt-get install cowsay -y
+          - name: Executing Shell Script
+            run: ./ascii-script.sh
                 
-            - name: Execute cowsay CMD
-              run: cowsay -f dragon "Run for cover, I am a Drafon"  >> dragon.txt
-
-            - name: Test File Exits
-              run: grep -i "dragon" dragon.txt
-
-            - name: ready file 
-              run: cat dragon.txt
-
-            - name: List repo files
-              run: ls -ltra
-
-            # - name: List file
-            #   run: ls
-
-
-            # - name: Read file
-            #   run: cat README.md
+            
