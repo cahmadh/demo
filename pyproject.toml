@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aws-ebs-optimizer"
+version = "0.1.0"
+description = "CLI for generating optimization recommendations for AWS EBS volumes"
+authors = [{ name = "Demo User" }]
+requires-python = ">=3.10"
+readme = "README.md"
+license = { text = "MIT" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.scripts]
+aws-ebs-optimizer = "aws_ebs_optimizer.cli:main"
