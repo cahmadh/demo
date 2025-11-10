@@ -1,0 +1,29 @@
+[
+  {
+    "volume_id": "vol-001",
+    "tier": "gp2",
+    "size_gib": 500,
+    "provisioned_iops": 3000,
+    "average_iops": 200,
+    "average_throughput_mbps": 50,
+    "burst_balance_percent": 85
+  },
+  {
+    "volume_id": "vol-002",
+    "tier": "gp3",
+    "size_gib": 150,
+    "provisioned_iops": 3000,
+    "average_iops": 2900,
+    "average_throughput_mbps": 35,
+    "burst_balance_percent": 100
+  },
+  {
+    "volume_id": "vol-003",
+    "tier": "st1",
+    "size_gib": 2000,
+    "provisioned_iops": 0,
+    "average_iops": 150,
+    "average_throughput_mbps": 20,
+    "burst_balance_percent": 100
+  }
+]
