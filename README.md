@@ -38,13 +38,14 @@ the tool can be run locally without cloud credentials.
 4. Launch the interactive web interface:
 
    ```bash
-   python -m aws_ebs_optimizer.webapp
+   aws-ebs-optimizer --serve
    ```
 
    Then open <http://127.0.0.1:8000> in your browser. Paste your JSON metrics
    into the text area and submit the form to see recommendations rendered
-   directly on the page. The server uses Python's built-in WSGI server, so it is
-   intended for local use only.
+   directly on the page. Use `--host` and `--port` to adjust the bind address if
+   you want to expose the UI elsewhere. The server uses Python's built-in WSGI
+   server, so it is intended for local use only.
 
 ## Running Tests
 

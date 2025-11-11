@@ -9,7 +9,7 @@ from typing import Iterable
 from urllib.parse import parse_qs
 from wsgiref.simple_server import make_server
 
-from .cli import deserialize_metrics, format_recommendations
+from .io_utils import deserialize_metrics, format_recommendations
 from .optimizer import optimize_many
 
 
@@ -108,12 +108,18 @@ def application(environ, start_response):  # type: ignore[override]
     return list(_render_page(sample_metrics))
 
 
-def run(host: str = "127.0.0.1", port: int = 8000) -> None:
+def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
     """Launch a development server serving the optimizer UI."""
 
     with make_server(host, port, application) as httpd:
         print(f"Serving AWS EBS Optimizer UI at http://{host}:{port}")
         httpd.serve_forever()
+
+
+def run(host: str = "127.0.0.1", port: int = 8000) -> None:
+    """Backward-compatible alias for :func:`serve`."""
+
+    serve(host=host, port=port)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual entry point

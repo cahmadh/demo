@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
-from typing import Iterable, Mapping, Sequence
+from typing import Iterable
 
-from .models import OptimizationRecommendation, VolumeMetrics
+from .io_utils import format_recommendations, load_metrics
 from .optimizer import optimize_many
+from .webapp import serve as serve_ui
 
 
 def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
@@ -19,8 +21,12 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "metrics_file",
+        nargs="?",
         type=Path,
-        help="Path to a JSON file containing a list of volume metric objects.",
+        help=(
+            "Path to a JSON file containing a list of volume metric objects. "
+            "Required unless --serve is supplied."
+        ),
     )
     parser.add_argument(
         "--output",
@@ -29,61 +35,51 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
         default=None,
         help="Optional path to write recommendations as JSON. Prints to stdout when omitted.",
     )
+    parser.add_argument(
+        "--serve",
+        action="store_true",
+        help="Launch the browser UI instead of running a CLI analysis.",
+    )
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host interface to bind when using --serve. [default: %(default)s]",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="TCP port to bind when using --serve. [default: %(default)s]",
+    )
 
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
 
+    if args.serve:
+        return args
 
-def deserialize_metrics(items: Sequence[Mapping[str, object]]) -> list[VolumeMetrics]:
-    """Convert an iterable of mapping objects into :class:`VolumeMetrics` values."""
+    if args.metrics_file is None:
+        parser.error("metrics_file is required unless --serve is provided")
 
-    metrics_objects: list[VolumeMetrics] = []
-    for item in items:
-        metrics_objects.append(
-            VolumeMetrics(
-                volume_id=str(item["volume_id"]),
-                tier=str(item["tier"]),
-                size_gib=int(item["size_gib"]),
-                provisioned_iops=int(item.get("provisioned_iops", 0)),
-                average_iops=float(item.get("average_iops", 0.0)),
-                average_throughput_mbps=float(item.get("average_throughput_mbps", 0.0)),
-                burst_balance_percent=float(item.get("burst_balance_percent", 100.0)),
-            )
-        )
-
-    return metrics_objects
-
-
-def load_metrics(path: Path) -> list[VolumeMetrics]:
-    """Load volume metrics from a JSON file."""
-
-    with path.open("r", encoding="utf-8") as fp:
-        raw_metrics = json.load(fp)
-
-    if not isinstance(raw_metrics, list):
-        raise ValueError("Metrics file must contain a JSON list of volume metric objects.")
-
-    return deserialize_metrics(raw_metrics)
-
-
-def format_recommendations(recommendations: Iterable[OptimizationRecommendation]) -> str:
-    """Return a human-readable string for the provided recommendations."""
-
-    lines = []
-    for rec in recommendations:
-        lines.append(f"Volume: {rec.volume_id}")
-        lines.append(f"  Action: {rec.action}")
-        lines.append(f"  Summary: {rec.summary}")
-        lines.append(f"  Details: {rec.details}")
-        lines.append("")
-    return "\n".join(lines).strip()
+    return args
 
 
 def main(argv: Iterable[str] | None = None) -> int:
     """CLI entry point."""
 
     args = parse_args(argv)
-    metrics = load_metrics(args.metrics_file)
-    recommendations = optimize_many(metrics)
+    if args.serve:
+        serve_ui(host=args.host, port=args.port)
+        return 0
+
+    metrics_path = args.metrics_file
+    assert metrics_path is not None  # For type checkers
+
+    try:
+        metrics = load_metrics(metrics_path)
+        recommendations = optimize_many(metrics)
+    except Exception as exc:  # pylint: disable=broad-except
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
 
     if args.output:
         data = [rec.to_dict() for rec in recommendations]
