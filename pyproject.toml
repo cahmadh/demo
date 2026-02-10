@@ -19,3 +19,4 @@ dependencies = []
 
 [project.scripts]
 aws-ebs-optimizer = "aws_ebs_optimizer.cli:main"
+small-calculator = "aws_ebs_optimizer.calculator_cli:main"

@@ -34,6 +34,18 @@ the tool can be run locally without cloud credentials.
    python -m aws_ebs_optimizer.cli sample_data/volumes.json -o recommendations.json
    ```
 
+
+## Small Calculator App
+
+This repository also includes a tiny calculator CLI for basic arithmetic.
+
+```bash
+python -m aws_ebs_optimizer.calculator_cli 12 + 8
+python -m aws_ebs_optimizer.calculator_cli 9 / 3
+```
+
+Supported operators: `+`, `-`, `*`, `/`.
+
 ## Running Tests
 
 ```bash
